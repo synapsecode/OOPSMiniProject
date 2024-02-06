@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+{% block content %}
+<form class="container p-4" method="post" enctype="multipart/form-data">
+	<a class="btn btn-dark" href="{{url_for('main.main_home')}}">Go to Landing Page</a><br><br>
+	<h1 class="display-1 tit">🌱 Register</h1>
+	<br>
+	<input name='full_name' type="text" class=" mt-2 form-control bg-muted text-dark" placeholder="Full Name" id="namebox"><br>
+	<input name='phone' type="text" class=" mt-2 form-control bg-muted text-dark" placeholder="Phone Number" id="pnbox"><br>
+	<input name='aadhar' type="text" class=" mt-2 form-control bg-muted text-dark" placeholder="Aadhar Number" id="aadbox"><br>
+	<input name='location' type="text" class=" mt-2 form-control bg-muted text-dark" placeholder="Location (Region)" id="locbox"><br>
+	<input name='address' type="textarea" rows="2" class=" mt-2 form-control bg-muted text-dark" placeholder="Home Address" id="addrbox"><br>
+	<input name='password' type="text" class="form-control bg-muted text-dark" placeholder="Password" id="pwdbox"><br>
+	<input type="file" name="file" class="btn btn-lg btn-dark my-4"><br>
+	<input type='submit' class="btn btn-dark btn-lg" value="Register">
+	<br>
+	
+	<a class="text-muted text-decoration-none d-block my-3" href="{{url_for('patient.patient_login')}}">Already have an account? Log in</a>
+</form>
+{% endblock content %}
+
+{% block js %}
+<script>
+/*const register = () => {
+	let fullName = document.getElementById('namebox').value;
+	let phone = document.getElementById('pnbox').value;
+	let aadhar = document.getElementById('aadbox').value;
+	let location = document.getElementById('locbox').value;
+	let address = document.getElementById('addrbox').value;
+	let password = document.getElementById('pwdbox').value;
+	let pfp = document.getElementById('pfp').files[0];
+	
+	let fd = new FormData();
+	fd.append('full_name', fullName);
+	fd.append('phone', phone);
+	fd.append('aadhar', aadhar);
+	fd.append('location', location);
+	fd.append('address', address);
+	fd.append('password', password);
+	fd.append('profilepic', pfp)
+
+	fetch(window.location.href, {
+		method: 'post',
+		body: fd
+	}).then(()=>window.location.href = '{{url_for("patient.patient_login")}}');
+	
+}*/
+</script>
+{% endblock js %}

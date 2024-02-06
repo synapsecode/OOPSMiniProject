@@ -1,0 +1,211 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+<br>
+	<center class="p-2">
+		<h1 class="display-1">⚕️Home</h1>
+		<a class="btn btn-danger" onclick="logout()">Logout</a>
+	<center><br>
+	<div class="panel p-5">
+		<button class="btn btn-lg btn-dark op" data-toggle="modal" data-target="#NewVaccineModal"> New Vaccine Batch </button>
+		<button class="btn btn-lg btn-dark op" data-toggle="modal" data-target="#VaccinateModal"> Vaccinate </button>
+		<a class="btn btn-lg btn-dark op" data-toggle="modal" data-target="#InventoryModal"> Inventory </a>
+		<a class="btn btn-lg btn-dark op" data-toggle="modal" data-target="#StatisticsModal"> Statistics </a>
+	</center>
+	
+	</div>
+</div>
+
+
+<!-- Add Vaccine Modal -->
+<div class="modal fade" id="NewVaccineModal" tabindex="-1" role="dialog" aria-labelledby="NewVaccineModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="NewVaccineModalLongTitle">Add Vaccine Batch</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control bg-dark text-light mb-1" placeholder="Vaccine Name" id="vxName">
+		<input type="text" class="form-control bg-dark text-light mb-1" placeholder="Batch Number" id="batNumber">
+		<input type="text" class="form-control bg-dark text-light mb-1" placeholder="Vaccine Count" id="vxCount">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="addVaccineBatch()">Add Batch</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Vaccinate Modal -->
+<div class="modal fade" id="VaccinateModal" tabindex="-1" role="dialog" aria-labelledby="VaccinateModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="VaccinateModalLongTitle">Vaccinate Patient</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  	<select name="VxName" id="VxNameSelect" class="form-control bg-dark text-light mb-1"  onchange="changeBatchNumbers()">
+		  	<option value="{{vaccine_names[0]}}"> Vaccine Name </option>
+			{% for vn in vaccine_names %}
+				<option value="{{vn}}">{{vn}}</option>
+			{% endfor %}
+		</select>
+		<select name="VxBatch" id="VxBatchSelect" class="form-control bg-dark text-light mb-1">
+		  	<option value="x"> Vaccine Batch </option>
+		</select>
+        <input type="text" class="form-control bg-dark text-light mb-1" placeholder="Patient Phone" id="patientPhone">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="vaccinate()">Vaccinate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inventory Modal -->
+<div class="modal fade" id="InventoryModal" tabindex="-1" role="dialog" aria-labelledby="InventoryModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="InventoryModalLongTitle">Vaccine Batch Inventory</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  	<input type="text" class="form-control bg-dark text-light mb-2" placeholder="Search Batch Number" onkeyup="tableFilterer(2)" id="searchbar">
+		  <div class="tableholder">
+				<table class="table table-striped table-dark" id="tbl">
+				<thead>
+					<tr>
+					<th scope="col">SerialNo</th>
+					<th scope="col">Vaccine Name</th>
+					<th scope="col">Batch Number</th>
+					<th scope="col">Vaccine Count</th>
+					<th scope="col">Delete Batch</th>
+					</tr>
+				</thead>
+				<tbody id='tbl'>
+					{% for e in inventory %}
+					<tr data-id="-1">
+					<td>{{loop.index}}</td>
+						<td>{{e.vaccine_name}}</td>
+						<td>{{e.batch_id}}</td>
+						<td class='phn'>{{e.vaccine_count}}</td>
+						<td><button class="btn btn-danger" onclick=deleteBatch({{e.id}})>Delete</button></td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Statistics Modal -->
+<div class="modal fade" id="StatisticsModal" tabindex="-1" role="dialog" aria-labelledby="StatisticsModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="StatisticsModalLongTitle">Statistics</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  	<center>
+		  	<h1 class="display-2">{{stats['allvac']}}</h1>
+			<small class="btn btn-dark op">Vaccinated Count (Country)</small>
+			
+			<h1 class="display-2">{{stats['docvac']}}</h1>
+			<a class="btn btn-dark op" href="{{url_for('doctor.get_my_patients')}}">My Patients</a>
+			
+			<h1 class="display-2">{{stats['fatalities']}}</h1>
+			<a class="btn btn-dark op" href="{{url_for('doctor.get_patient_fatalities')}}">Deaths</a>
+			
+			<h1 class="display-2">{{stats['sideaffected']}}</h1>
+			<a class="btn btn-dark op" href="{{url_for('doctor.get_patient_side_effects')}}">Side Effects</a>
+		</center>
+	  	
+      </div>
+      <div class="modal-footer">
+	
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script>
+
+	let batches = JSON.parse(`{{batch_numbers}}`.replaceAll('&#34;', '"').replaceAll(" X&#34", '"'));
+
+
+
+	const logout = () => {
+		fetch(`${window.location.origin}/doctor/logout`)
+		.then(()=>window.location.reload())
+	}
+
+
+	const changeBatchNumbers = () => {
+		
+		let target = document.getElementById('VxBatchSelect');
+		let source = document.getElementById('VxNameSelect');
+		console.log("Changed -> " + source.value);
+		let batch_nums = batches[source.value];
+		target.innerHTML = "<option value='x'> Vaccine Batch </option>";
+		batch_nums.forEach((e)=>{
+			target.innerHTML += `<option value='${e}'>${e}</option>`;
+		})
+	}
+
+	const addVaccineBatch = () => {
+		let v_name = document.getElementById('vxName').value;
+		let bat_num = document.getElementById('batNumber').value;
+		let vx_count = document.getElementById('vxCount').value;
+		let fd = new FormData();
+		fd.append('rx_type', 'ADD_VACCINE_BATCH')
+		fd.append('vaccine_name', v_name)
+		fd.append('batch_number', bat_num)
+		fd.append('vaccine_count', vx_count)
+		fetch(window.location.href, {
+			method: 'post',
+			body: fd
+		}).then(()=>window.location.reload());
+	}
+
+	const vaccinate = () => {
+		let vaccine_name = document.getElementById('VxNameSelect').value;
+		let batch_number = document.getElementById('VxBatchSelect').value;
+		let phone_number = document.getElementById('patientPhone').value;
+		let fd = new FormData();
+		fd.append('rx_type', 'VACCINATE')
+		fd.append('vaccine_name', vaccine_name)
+		fd.append('batch_number', batch_number)
+		fd.append('phone_number', phone_number)
+		fetch(window.location.href, {
+			method: 'post',
+			body: fd
+		}).then(()=>window.location.reload());
+	}
+
+	const deleteBatch = (id) => {
+		let url = `${window.location.origin}/doctor/delete_vaccine_batch/${id}`;
+		fetch(url).then(()=>window.location.reload());
+	}
+	
+</script>
+{% endblock js %}

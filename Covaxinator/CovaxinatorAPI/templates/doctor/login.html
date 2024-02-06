@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container p-5">
+	<a class="btn btn-dark" href="{{url_for('main.main_home')}}">Go to Landing Page</a><br><br>
+	<h1 class="display-1 tit">🔑 Login</h1>
+	<br>
+	<input type="text" class=" mt-2 form-control bg-muted text-dark" placeholder="Phone Number" id="pnbox">
+	<br>
+	<input type="text" class="form-control bg-muted text-dark" placeholder="Password" id="pwdbox">
+	<br>
+	<button class="btn btn-dark btn-lg" onclick="login()">Log In</button>
+	<br>
+	<a class="text-muted text-decoration-none d-block my-3" href="{{url_for('doctor.doctor_register')}}">Do not have an account? Sign up</a>
+</div>
+{% endblock content %}
+
+
+{% block js %}
+<script>
+const login = () => {
+	let phone = document.getElementById('pnbox').value;
+	let password = document.getElementById('pwdbox').value;
+	let fd = new FormData();
+	fd.append('phone', phone);
+	fd.append('password', password);
+	fetch(window.location.href, {
+		method: 'post',
+		body: fd
+	})
+	.then(response => response.json())
+	.then(data => {if(data.redirect) window.location.href = data.redirect})
+}
+</script>
+{% endblock js %}

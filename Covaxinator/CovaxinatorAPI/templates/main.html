@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container p-5">
+	<h1 class="display-1 tit">📦 Covaxinator</h1>
+	<p class="subtit">A Vaccine Administration & Tracking System</p>
+
+	<a class="btn btn-dark" href="{{url_for('doctor.doctor_login')}}">Doctor Login</a>
+	<a class="btn btn-dark" href="{{url_for('patient.patient_login')}}">Patient Login</a>
+</div>
+{% endblock content %}
+
+{% block css %}
+<style>
+
+</style>
+{% endblock css %}

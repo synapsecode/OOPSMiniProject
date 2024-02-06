@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+	<link rel="stylesheet" href="{{url_for('static', filename='main.css')}}">
+
+	{% block css %}{% endblock css %}
+
+    <title>{{title}}</title>
+  </head>
+  <body>
+  <!--Flash Messages-->
+  <center>
+    	<center class="">
+        <div class="col-md-8">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </div>
+	</center>
+  </center>
+  <div class="collegebranding">
+    <img src="{{url_for('static', filename='dsce.png')}}" alt="">
+    <div>
+      <h3>DAYANANDA SAGAR COLLEGE OF ENGINEERING</h3>
+      <h5>Object Oriented Programming: MiniProject</h5>
+      <h6>Manas M Hejmadi (CS117), Rajiv Chaitanya (CS165)</h6>
+    </div>
+      
+     
+ 
+  </div>
+  
+    {% block content %}
+	{% endblock content %}
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script>
+  const tableFilterer = (index, targetTableID="tbl", searchSource="searchbar") => {
+  let input = document.getElementById(searchSource);
+  let filter = input.value.toLowerCase();
+  let table = document.getElementById(targetTableID);
+  let tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {	
+    td = tr[i].getElementsByTagName("td")[index]; //Match Phone Number
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+
+}
+</script>
+    
+	{% block js %}{% endblock js %}
+  </body>
+</html>

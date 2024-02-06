@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container p-4">
+	<center>
+		<h1 class="display-1">Covaxinator</h1>
+		<small class="xt text-muted">Home Page</small>
+		<br><br>
+		<button data-toggle="modal" data-target="#CheckCertificateModal" class="btn btn-dark btn-lg pp mb-1"> Check Certificate </button><br>
+		<button class="btn btn-lg btn-dark pp" data-toggle="modal" data-target="#CovaxiShieldModal">CovaxiShield</button>
+	</center>
+</div>
+
+
+<!-- Check Certificate Modal -->
+<div class="modal fade" id="CheckCertificateModal" tabindex="-1" role="dialog" aria-labelledby="CheckCertificateModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="CheckCertificateModalLongTitle">Check Certificate</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control bg-dark text-light mb-1" placeholder="Phone Number" id="phn">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="checkCertificate()">Check</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CovaxiShield Modal -->
+<div class="modal fade" id="CovaxiShieldModal" tabindex="-1" role="dialog" aria-labelledby="CovaxiShieldModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="CovaxiShieldModalLongTitle">CovaxiShield</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  	<input type="text" class="form-control bg-dark text-light mb-1" placeholder="Search Location" id="searchbar" onkeyup="tableFilterer(1)">
+		<div class="tableholder">
+				<table class="table table-striped table-dark" id="tbl">
+				<thead>
+					<tr>
+					<th scope="col">SerialNo</th>
+					<th scope="col">Location</th>
+					<th scope="col">Vaccinated</th>
+					<th scope="col">Not Vaccinated</th>
+					<th scope="col">Percentage</th>
+					</tr>
+				</thead>
+				<tbody id='tbl'>
+					{% for e in json.loads(shield_data) %}
+					<tr data-id="-1">
+					<td>{{loop.index}}</td>
+						<td>{{e}}</td>
+						<td>{{json.loads(shield_data)[e]['vaccinated']}}</td>
+						<td class='phn'>{{json.loads(shield_data)[e]['notvaccinated']}}</td>
+						<td>{{ json.loads(shield_data)[e]['shieldpoint'] }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block css %}
+<style>
+.xt{
+	font-size: 1.8rem;
+	margin-top: -20px;
+}
+.pp{
+	width: 300px;
+}
+</style>
+{% endblock css %}
+
+{% block js %}
+<script>
+const checkCertificate = () => {
+	fetch(`${window.location.origin}/getcertificate/${document.getElementById('phn').value}`)
+	.then(res => res.json())
+	.then(data => {if(data.redirect) window.location.href = data.redirect})
+}
+</script>
+{% endblock js %}

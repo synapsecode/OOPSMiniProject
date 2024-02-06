@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container p-5">
+	<div class="sheet">
+		<h1 class="display-2">Vaccination Certificate</h1>
+		<hr><br>
+		<h1 class="display-4 mb-5"><span class="bg-dark p-2 text-light mx-5">Name: </span>{{patient.name}}</h1>
+		<h1 class="display-4 mb-5"><span class="bg-dark p-2 text-light mx-5">Vaccine Name: </span>{{vaccine_batch.vaccine_name}}</h1>
+		<h1 class="display-4 mb-5"><span class="bg-dark p-2 text-light mx-5">Vaccine Batch: </span>{{vaccine_batch.batch_id}}</h1>
+		<h1 class="display-4 mb-5"><span class="bg-dark p-2 text-light mx-5">Doctor: </span>{{patient.doctor.name}}</h1>
+	</div>
+	
+</div>
+{% endblock content %}
+
+{% block css %}
+<style>
+.sheet{
+	border: 2px solid black;
+	padding: 20px;
+}
+</style>
+{% endblock css %}

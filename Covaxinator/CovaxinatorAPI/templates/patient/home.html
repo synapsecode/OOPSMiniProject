@@ -1,0 +1,211 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+<br>
+	<center class="p-2">
+		<h1 class="display-1">🌱 Home</h1>
+		<a class="btn btn-danger" onclick="logout()">Logout</a>
+	<center><br>
+	<div class="panel p-5">
+		<button class="btn btn-lg btn-dark op" data-toggle="modal" data-target="#FindVacCenterModal"> Find Vaccination Centers</button>
+		<!-- <a class="btn btn-lg btn-dark op"> Get News </a> -->
+		<button class="btn btn-lg btn-dark op" onclick="getCertificate()">Get Vaccination Certificate</button>
+		<button class="btn btn-lg btn-dark op" data-toggle="modal" data-target="#CovaxiShieldModal">CovaxiShield</button>
+		<a class="btn btn-lg btn-dark op" href="{{url_for('patient.report_fatality')}}"> Report Fatality </a>
+		<a class="btn btn-lg btn-dark op" data-toggle="modal" data-target="#ReportSideEffectsModal"> Report Side Effects </a>
+		<!-- <a class="btn btn-lg btn-dark op" href="{{url_for('patient.follow_ups')}}">Follow Ups</a> -->
+	</center>
+	
+	</div>
+</div>
+
+
+<!-- FindVacCenters Modal -->
+<div class="modal fade" id="FindVacCenterModal" tabindex="-1" role="dialog" aria-labelledby="FindVacCenterModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="FindVacCenterModalLongTitle">Find Vaccination Centers</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  	<select name="VacCen" id="VacCenSelect" class="form-control bg-dark text-light" onchange="getCenters()">
+		<option value="0">Select Location</option>
+		{% for l in json.loads(vac_centers) %}
+			<option value="{{l}}">{{l}}</option>
+		{% endfor %}
+		</select>
+		<br>
+		<div class="tableholder">
+				<table class="table table-striped table-dark" id="vctbl">
+				<thead>
+					<tr>
+					<th scope="col">SerialNo</th>
+					<th scope="col">Doctor Name</th>
+					<th scope="col">Phone</th>
+					<th scope="col">Address</th>
+					</tr>
+				</thead>
+				<tbody id='vctblb'>
+				</tbody>
+			</table>
+		  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CovaxiShield Modal -->
+<div class="modal fade" id="CovaxiShieldModal" tabindex="-1" role="dialog" aria-labelledby="CovaxiShieldModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="CovaxiShieldModalLongTitle">CovaxiShield</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  	<input type="text" class="form-control bg-dark text-light mb-1" placeholder="Search Location" id="searchbar" onkeyup="tableFilterer(1)">
+		<div class="tableholder">
+				<table class="table table-striped table-dark" id="tbl">
+				<thead>
+					<tr>
+					<th scope="col">SerialNo</th>
+					<th scope="col">Location</th>
+					<th scope="col">Vaccinated</th>
+					<th scope="col">Not Vaccinated</th>
+					<th scope="col">Percentage</th>
+					</tr>
+				</thead>
+				<tbody id='tbl'>
+					{% for e in json.loads(shield_data) %}
+					<tr data-id="-1">
+					<td>{{loop.index}}</td>
+						<td>{{e}}</td>
+						<td>{{json.loads(shield_data)[e]['vaccinated']}}</td>
+						<td class='phn'>{{json.loads(shield_data)[e]['notvaccinated']}}</td>
+						<td>{{ json.loads(shield_data)[e]['shieldpoint'] }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ReportSideEffects Modal -->
+<div class="modal fade" id="ReportSideEffectsModal" tabindex="-1" role="dialog" aria-labelledby="ReportSideEffectsModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ReportSideEffectsModalLongTitle">Report Side Effects</h5>
+        <button type="button" class="btn btn-muted" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  	<input type="text" class="form-control mb-1 bg-dark text-light" placeholder="Enter Symptoms with Comma & Space" id="symptomsbar">
+		<textarea name="symdesc" id="symdesc" cols="30" rows="10" class="form-control bg-dark text-light mb-1" placeholder="Enter Description"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" onclick="reportSideEffects()">Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script>
+	let shield_data = JSON.parse(`{{shield_data}}`.replaceAll('&#34;', '"').replaceAll(" X&#34", '"'));
+	let vac_centers = JSON.parse(`{{vac_centers}}`.replaceAll('&#34;', '"').replaceAll(" X&#34", '"'));
+	let news = []
+
+	const get_news = () => {
+		for(let i=0; i<5; i++){
+			let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=590b8ff1c78d4c0e8088535f3cf54122&category=health&page=${i}`
+			let dat = {};
+			fetch(url)
+			.then(res => res	.json())
+			.then(data=>{
+				let D = data['articles']
+				let N = []
+				D.forEach((e) => {
+					N.push({
+						title: e.title,
+						url:e.url,
+						image:e.urlToImage
+					})
+				})
+				news = N;
+			})
+		}
+	}
+
+	const logout = () => {
+		fetch(`${window.location.origin}/patient/logout`)
+		.then(()=>window.location.reload())
+	}
+
+	getCenters = () => {
+		let loc = document.getElementById('VacCenSelect').value;
+		let table = document.getElementById('vctblb');
+		let centers = vac_centers[loc];
+		let cx = 1;
+		table.innerHTML = "";
+		if(centers != undefined){
+			centers.forEach((c)=>{
+				table.innerHTML += 	`
+					<tr>
+						<td>${cx++}</td>
+						<td>${c.name}</td>
+						<td>${c.phone}</td>
+						<td>${c.address}</td>
+					</tr>
+				`;
+			})
+			
+		}
+	}
+
+	const reportFatality = () => {
+		fetch(`{{url_for('patient.report_fatality')}}`)
+		.then(()=>window.location.reload())
+	}
+
+	const getCertificate = () => {
+		let url = `${window.location.origin}/patient/vaccination_certificate/{{phone}}`
+		window.location.href = url;
+	}
+
+	const reportSideEffects = () => {
+		let symptoms = document.getElementById('symptomsbar')
+		let symdesc = document.getElementById('symdesc')
+		symptoms = symptoms.value.split(", ")
+		let fd = new FormData()
+		fd.append('symptoms', symptoms)
+		fd.append('symdesc', symdesc.value)
+		fd.append('patient_phone', '{{patient.phone}}')
+		fetch("{{url_for('patient.report_symptoms')}}",{
+			method:'POST',
+			body: fd
+		})
+		.then(response => response.json())
+		.then(data => {
+			console.log(data);
+			if(data.redirect) window.location.href = data.redirect
+		})
+	}
+</script>
+{% endblock js %}

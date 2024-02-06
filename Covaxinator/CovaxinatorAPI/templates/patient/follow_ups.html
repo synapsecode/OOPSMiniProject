@@ -1,0 +1,202 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="cont">
+	<div class="mainbar">
+		<div class="topbar p-3">
+			<button class="btn btn-light" onclick="window.history.back()">Back</button>
+		</div>
+		<div class="midsection p-2">
+			<h1>Talking to: {{doctor.name}}</h1>
+			<div id="chatArea" class="p-3">
+				
+				
+			</div>
+		</div>
+		<div class="bottombar p-3 d-flex">
+			<input type="text" id="msgbox" class="form-control mx-2 bg-dark text-light" placeholder="Enter Message">
+			<button class="btn btn-success" onclick="sendPrivateMessage()">Send</button>
+		</div>
+		
+
+	</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js"></script>
+<script type="text/javascript" charset="utf-8">
+	let chatArea = document.getElementById('chatArea')
+	let messagebox = document.getElementById('msgbox')
+	var socket = io();
+
+	let currentPhone = '{{doctor.phone}}'
+	let chatData = [];
+
+
+	const chatBuilder = (cData) => {
+		let chat = `
+		<div class="chatbubble ${cData['sender'] == 'patient' ? 'me' : 'oth'}">
+			<small class="rolename">${cData['sender']}</small>
+			<h4 class="message">${cData['message']}</h4>
+		</div>
+		`
+		chatArea.innerHTML += chat;
+	}
+
+	socket.on('connect', function() {
+		console.log("Connected")
+		socket.emit('message', {
+			phone: '{{patient.phone}}',
+			role: 'patient',
+			socket_id: socket.id,
+		});
+	});
+
+	socket.on('private_message', (payload) => {
+		console.log(payload)
+		if(payload.to == '{{patient.phone}}' || payload.from == '{{patient.phone}}'){
+			chatBuilder(payload)
+			
+		}
+	})
+
+	const updateDB = (payload) => {
+		/*
+		{sender, message}
+		*/
+		console.log('Updating DB')
+		let fd = new FormData();
+		fd.append('sender', payload.sender)
+		fd.append('message', payload.message)
+		fetch(
+			`${window.location.origin}/patient/updatechat/${currentPhone}`,
+			{
+				method:'POST',
+				body:fd
+			}
+		).then(res => res.json())
+		.then(data => {console.log(data)})
+	}
+	
+	const sendPrivateMessage = () => {
+		let message = messagebox.value;
+		let to = currentPhone;
+		if(to === '')
+			alert('No Patient Selected')
+		else if(message === '')
+			alert("Empty Message")
+		else{
+			let payload = {
+					from:'{{patient.phone}}',
+					to:to,
+					message:message,
+					socket_id: socket.id,
+					sender: 'patient'
+				}
+			socket.emit('private_message', 
+				payload
+			)
+			updateDB(payload)
+		}
+		messagebox.value = "";
+	}
+
+	messagebox.addEventListener('keyup', (e) => {
+		 if (!e) { var e = window.event; }
+		e.preventDefault(); // sometimes useful
+
+		// Enter is pressed
+		if (e.keyCode == 13) { sendPrivateMessage(); }
+	})
+
+	document.addEventListener('DOMContentLoaded', function() {
+		console.log('Initializing');
+		chatArea.innerHTML = "Loading";
+		fetch(`${window.location.origin}/patient/getchats/${currentPhone}`)
+		.then(res => res.json())
+		.then((chats)=>{
+			chatArea.innerHTML = "";
+			console.log("Recieved Chats");
+			chats['chats'].forEach((c) => {
+				chatBuilder(c)
+			})
+		})
+	}, false);
+
+</script>
+{% endblock content %}
+
+
+{% block css %}
+<style>
+	html, body{
+		height:100%;
+		overflow:none;
+	}
+	.cont{
+		height:100%;
+		border:1px solid black;
+		
+	}
+	.rolename{
+		text-transform: capitalize;
+	}
+	.sidebar{
+		flex:1;
+		border:1px solid gray;
+		background-color:black;
+		color: white;
+		height:100%;
+		overflox-y:auto;
+	}
+	#chatArea{
+		margin-top:10px;
+		border:1px solid black;
+		width:100%;
+		height:450px;
+		overflow-y:auto;
+		display: flex;
+		flex-direction: column;
+	}
+	.mainbar{
+		flex:5;
+		border:1px solid gray;
+		display:flex;
+		flex-direction:column;
+		height:100%;
+	}
+	.topbar{
+		flex:1;
+		background-color:black; 
+	}
+	.midsection{
+		flex:20;
+		
+	}
+	.bottombar{
+		position: relative;
+		float: bottom;
+		bottom:0;
+		background-color:black; 
+		flex:1;
+	}
+
+	.chatbubble{
+		padding:10px 20px 10px 10px;
+		margin-bottom: 7px;
+		display: table;
+		border: 1px solid #aaa;
+		border-radius: 7px;
+		width: fit-content;
+		max-width: 60%;
+	}
+
+	.me{
+		background-color: black;
+		color:white;
+		align-self:flex-end;
+	}
+
+	.oth{
+		background-color: white;
+		color:black;
+	}
+</style>
+{% endblock css %}

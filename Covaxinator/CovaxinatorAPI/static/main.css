@@ -1,0 +1,35 @@
+.tit{
+	font-size: 10rem;
+}
+.subtit{
+	font-size: 3rem;
+	opacity: 0.8;
+	margin-top: -25px;
+	margin-bottom: 30px;
+}
+
+.panel{
+	border: 1px dotted black;
+	width: 400px;
+	margin:auto;
+	height: 460px;
+	overflow-y: auto;
+}
+
+.op{
+	width: 100%;
+	margin-bottom: 5px;
+}
+
+.tableholder{
+	height: 350px;
+	border: 1px solid black;
+	overflow-y: auto;
+}
+
+.collegebranding{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(192, 192, 192, 0.389);
+}
