@@ -2,10 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from CovaxinatorAPI.config import Config
 from flask_cors import CORS
-from flask_socketio import SocketIO
 
 db = SQLAlchemy()
-socketio = SocketIO()
 
 def create_app(config_class=Config):
 	app = Flask(__name__)
@@ -13,7 +11,6 @@ def create_app(config_class=Config):
 	db.init_app(app)
 	
 	cors = CORS(app)
-	socketio.init_app(app, cors_allowed_origins="*")
 	# 
 
 	#Import all your blueprints
